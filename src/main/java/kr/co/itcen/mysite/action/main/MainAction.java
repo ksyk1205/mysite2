@@ -1,12 +1,10 @@
 package kr.co.itcen.mysite.action.main;
 
 import java.io.IOException;
-
 import javax.servlet.ServletException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
 import kr.co.itcen.web.WebUtils;
 import kr.co.itcen.web.mvc.Action;
 
