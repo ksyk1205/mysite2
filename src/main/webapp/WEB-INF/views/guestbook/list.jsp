@@ -22,7 +22,7 @@
 							<td>비밀번호</td><td><input type="password" name="password"></td>
 						</tr>
 						<tr>
-							<td colspan=4><textarea name="contents" id="content"></textarea></td>
+							<td colspan=4><textarea name="content" id="content"></textarea></td>
 						</tr>
 						<tr>
 							<td colspan=4 align=right><input type="submit" VALUE=" 확인 "></td>
@@ -49,11 +49,12 @@
 						<br>
 					</li>
 				</ul>
+				
 			</div>
 		</div>
 		<jsp:include page="/WEB-INF/views/includes/navigation.jsp" />
 
 		<jsp:include page="/WEB-INF/views/includes/footer.jsp" />
-	
+	</div>
 </body>
 </html>

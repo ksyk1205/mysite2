@@ -1,6 +1,6 @@
 package kr.co.itcen.mysite.action.guestbook;
 
-import kr.co.itcen.mysite.action.main.MainAction;
+
 import kr.co.itcen.web.mvc.Action;
 import kr.co.itcen.web.mvc.ActionFactory;
 
