@@ -13,10 +13,11 @@ import kr.co.itcen.mysite.vo.UserVo;
 import kr.co.itcen.web.WebUtils;
 import kr.co.itcen.web.mvc.Action;
 
-public class WriteAction implements Action {
+public class ModifyAction implements Action {
 
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+		
 		HttpSession session =request.getSession();
 		if(session ==null) {
 			WebUtils.forward(request, response, request.getContextPath());
@@ -28,18 +29,23 @@ public class WriteAction implements Action {
 			return;
 		}
 		
+		String no = request.getParameter("no");
 		String title =request.getParameter("title");
 		String contents = request.getParameter("contents");
+		String reg_date = request.getParameter("reg_date");
+		Long user_no = authUser.getNo();
 		
-
-		BoardVo vo = new BoardVo();
-		vo.setTitle(title);
-		vo.setContents(contents);
-		vo.setUser_no(authUser.getNo());
+		BoardVo vo1 = new BoardVo();
 		
-		new BoardDao().insert(vo);
-		WebUtils.redirect(request, response, request.getContextPath() + "/board");	
-
+		vo1.setNo(Long.parseLong(no));
+		vo1.setTitle(title);
+		vo1.setContents(contents);
+		vo1.setReg_date(reg_date);
+		vo1.setUser_no(user_no);
+		
+		new BoardDao().modify(vo1);
+		WebUtils.redirect(request, response,  request.getContextPath()+"/board?a=view&no="+no+"&user_no="+user_no);
+	
 	}
 
 }

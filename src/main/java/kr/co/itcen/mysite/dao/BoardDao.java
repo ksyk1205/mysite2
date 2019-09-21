@@ -205,22 +205,24 @@ public class BoardDao {
 			connection = getConnection();
 			
 			String sql = 
-				"select no,title,contents,user_no from board where no =?" ;
+				"select no, title, contents, user_no, reg_date from board where no =?" ;
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setLong(1,no);
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()){
-				Long b_no= rs.getLong(1);
+				Long no1= rs.getLong(1);
 				String title =rs.getString(2);
 				String contents =rs.getString(3);
 				Long user_no = rs.getLong(4);
+				String reg_date = rs.getString(5);
 				
 				BoardVo vo= new BoardVo();
-				vo.setUser_no(user_no);
+				vo.setNo(no1);
 				vo.setTitle(title);
 				vo.setContents(contents);
 				vo.setUser_no(user_no);
+				vo.setReg_date(reg_date);
 				
 				result = vo;
 			}
@@ -245,6 +247,48 @@ public class BoardDao {
 		return result;
 	}
 	
+	public boolean modify(BoardVo vo) {
+		boolean result = false;
+
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		
+
+		try {
+			connection = getConnection();
+
+			String sql = "update board set title= ? , contents = ?, reg_date = now() where no = ?";
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, vo.getTitle());
+			pstmt.setString(2, vo.getContents());
+			pstmt.setLong(3,vo.getNo());
+			
+			int count=pstmt.executeUpdate();
+			
+			result=(count==1);
+
+		} catch (SQLException e) {
+			System.out.println("modify_error:" + e);
+		} finally {
+			try {
+				if(pstmt != null) {
+					pstmt.close();
+				}
+
+				if(pstmt != null) {
+					pstmt.close();
+				}
+
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return result;		
+	}
 	public void delete(long no) {
 		
 		Connection connection = null;
