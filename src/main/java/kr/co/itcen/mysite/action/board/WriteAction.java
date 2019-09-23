@@ -19,26 +19,35 @@ public class WriteAction implements Action {
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		HttpSession session =request.getSession();
 		if(session ==null) {
-			WebUtils.forward(request, response, request.getContextPath());
+			WebUtils.redirect(request, response, request.getContextPath());
 			return;
 		}
 		UserVo authUser = (UserVo)session.getAttribute("authUser");
 		if(authUser ==null) {
-			WebUtils.forward(request, response, request.getContextPath());
+			WebUtils.redirect(request, response, request.getContextPath());
 			return;
 		}
 		
 		String title =request.getParameter("title");
 		String contents = request.getParameter("contents");
-		
+		String parentNo = request.getParameter("parent_no");
 
 		BoardVo vo = new BoardVo();
 		vo.setTitle(title);
 		vo.setContents(contents);
 		vo.setUser_no(authUser.getNo());
 		
-		new BoardDao().insert(vo);
-		WebUtils.redirect(request, response, request.getContextPath() + "/board");	
+
+		
+		if (parentNo != null && parentNo.length() > 0) {
+			vo.setNo(Long.parseLong(parentNo));
+			new BoardDao().newinsert(vo);
+		} else {
+			new BoardDao().insert(vo);
+		}
+		
+		String page=request.getParameter("page");
+		WebUtils.redirect(request, response, request.getContextPath() + "/board?page="+page);	
 
 	}
 

@@ -43,31 +43,14 @@
 					</tr>
 				</table>
 				<div class="bottom">
-					<a href="${pageContext.servletContext.contextPath }/board">글목록</a>
-
-
-<%-- 				<c:if test="${empty authUser}">
+					<a href="${pageContext.servletContext.contextPath }/board?a=writeform&no=${vo.no }&page=${param.page}">답글쓰기</a>
+					<a href="${pageContext.servletContext.contextPath }/board?page=${param.page}">글목록</a>
+					<c:if test="${authUser.no==vo.user_no}">
 						<a
-							href="${pageContext.servletContext.contextPath }/board?a=modifyform&no=${vo.no }">aaaaaaa</a>
+							href="${pageContext.servletContext.contextPath }/board?a=modifyform&no=${vo.no }&page=${param.page}">글수정</a>
 					</c:if>
 
-					<c:if test="${authUser.no==vo.no}">
-						<a
-							href="${pageContext.servletContext.contextPath }/board?a=modifyform&no=${vo.no }">글수정</a>
-					</c:if> --%>
 
-					 <c:choose>
-						<c:when test="${authUser.no==vo.no}">
-							<a
-								href="${pageContext.servletContext.contextPath }/board?a=modifyform&no=${vo.no }">글수정</a>
-						</c:when>
-
-						<c:otherwise>
-							<a
-								href="${pageContext.servletContext.contextPath }/board?a=modifyform&no=${vo.no }">aaaaaaa</a>
-						</c:otherwise>
-						
-					</c:choose>
 				</div>
 			</div>
 		</div>

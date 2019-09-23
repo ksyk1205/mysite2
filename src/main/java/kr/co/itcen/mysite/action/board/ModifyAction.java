@@ -20,12 +20,12 @@ public class ModifyAction implements Action {
 		
 		HttpSession session =request.getSession();
 		if(session ==null) {
-			WebUtils.forward(request, response, request.getContextPath());
+			WebUtils.redirect(request, response, request.getContextPath());
 			return;
 		}
 		UserVo authUser = (UserVo)session.getAttribute("authUser");
 		if(authUser ==null) {
-			WebUtils.forward(request, response, request.getContextPath());
+			WebUtils.redirect(request, response, request.getContextPath());
 			return;
 		}
 		
@@ -44,7 +44,9 @@ public class ModifyAction implements Action {
 		vo1.setUser_no(user_no);
 		
 		new BoardDao().modify(vo1);
-		WebUtils.redirect(request, response,  request.getContextPath()+"/board?a=view&no="+no+"&user_no="+user_no);
+		
+		String page =request.getParameter("page");
+		WebUtils.redirect(request, response,  request.getContextPath()+"/board?a=view&no="+no+"&page="+page);
 	
 	}
 

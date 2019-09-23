@@ -18,8 +18,8 @@
 		<div id="content">
 			<div id="board">
 				<form id="search_form" action="" method="post">
-					<input type="text" id="kwd" name="kwd" value=""> <input
-						type="submit" value="찾기">
+					<input type="text" id="kwd" name="kwd" value=""> 
+					<input type="submit" value="찾기">
 				</form>
 				<table class="tbl-ex">
 					<tr>
@@ -30,23 +30,27 @@
 						<th>작성일</th>
 						<th>&nbsp;</th>
 					</tr>
-					
+
 					<c:set var="count" value='${fn:length(board) }' />
 					<c:forEach items='${board }' var='vo' varStatus='status'>
 					<tr>
 						<td>${count - status.index }</td>
-						<td style='padding-left:${50*vo.depth }px'><img
-							src='${pageContext.servletContext.contextPath }/assets/images/reply.png' /><a
-							href="${pageContext.servletContext.contextPath }/board?a=view&no=${vo.no }">${vo.title } </a></td>
+						<td style='padding-left:${vo.depth*15}px; text-align:left;'>
+							<c:if test="${vo.depth gt 0}">
+								<img src='${pageContext.servletContext.contextPath }/assets/images/reply.png'/>
+							</c:if>
+						<a href="${pageContext.servletContext.contextPath }/board?a=view&no=${vo.no }&page=${param.page }">${vo.title } </a></td>
 						<td>${vo.user_name }</td>
 						<td>${vo.hit }</td>
 						<td>${vo.reg_date }</td>
-						<c:if test='${authUser.no!=null }'>	
+						<c:if test='${authUser.no==vo.user_no }'>	
 						<td><a href="${pageContext.servletContext.contextPath }/board?a=delete&no=${vo.no }" class="del">삭제</a></td>
 						</c:if>
 					</tr>
 					</c:forEach>
-
+					
+					
+					
 				</table>
 
 				<!-- pager 추가 -->
@@ -64,7 +68,7 @@
 				<!-- pager 추가 -->
 				<c:if test='${authUser.no!=null }'>	
 				<div class="bottom">
-					<a href="${pageContext.servletContext.contextPath }/board?a=writeform"
+					<a href="${pageContext.servletContext.contextPath }/board?a=writeform&page=${param.page}"
 						id="new-book">글쓰기</a>
 				</div>
 				</c:if>

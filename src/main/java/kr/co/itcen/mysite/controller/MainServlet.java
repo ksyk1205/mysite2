@@ -30,7 +30,6 @@ public class MainServlet extends HttpServlet {
 		
 		action.execute(request,response);
 		
-		//WebUtils.forward(request, response, "/WEB-INF/views/main/index.jsp");
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {

@@ -19,12 +19,12 @@ public class UpdateAction implements Action {
 		//접근제어(ACL)////////////////////////////
 		HttpSession session =request.getSession();
 		if(session ==null) {
-			WebUtils.forward(request, response, request.getContextPath());
+			WebUtils.redirect(request, response, request.getContextPath());
 			return;
 		}
 		UserVo authUser = (UserVo)session.getAttribute("authUser");
 		if(authUser ==null) {
-			WebUtils.forward(request, response, request.getContextPath());
+			WebUtils.redirect(request, response, request.getContextPath());
 			return;
 		}
 		//////////////////////////////////////////////////////
