@@ -24,11 +24,8 @@ public class ListAction implements Action {
 			keyword = "";
 		}
 		
-		
 		List<BoardVo> vo = new BoardDao().getList((o_page-1)*5,keyword);
 		request.setAttribute("board", vo );
-		
-		
 		
 		WebUtils.forward(request, response, "/WEB-INF/views/board/list.jsp");
 

@@ -294,6 +294,7 @@ public class BoardDao {
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		
+		
 		try {
 			connection = getConnection();
 			
@@ -310,6 +311,7 @@ public class BoardDao {
 			pstmt.setString(2,"%"+keyword+"%");
 			pstmt.setLong(3, page);
 			rs = pstmt.executeQuery();
+			
 			
 			while(rs.next()){
 				Long user_no = rs.getLong(1);
