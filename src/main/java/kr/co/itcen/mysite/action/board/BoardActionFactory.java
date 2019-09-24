@@ -26,7 +26,6 @@ public class BoardActionFactory extends ActionFactory {
 			
 		}else if("view".equals(actionName)) {
 			action = new ViewAction();
-
 			
 		}else {
 			/* deafult(list) */
