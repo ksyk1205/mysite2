@@ -16,17 +16,17 @@ public class ListAction implements Action {
 
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String page ;
-		page=request.getParameter("page");
-		
-		
+		String page=request.getParameter("page");		
 		int o_page=Integer.parseInt(page);
-		 
 		
-		List<BoardVo> vo = new BoardDao().getList((o_page-1)*5);
+		String keyword = request.getParameter("keyword");
+		if(keyword == null) {
+			keyword = "";
+		}
+		
+		
+		List<BoardVo> vo = new BoardDao().getList((o_page-1)*5,keyword);
 		request.setAttribute("board", vo );
-		
-		
 		
 		
 		

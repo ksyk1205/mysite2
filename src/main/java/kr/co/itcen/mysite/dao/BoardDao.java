@@ -27,7 +27,7 @@ public class BoardDao {
 		
 		try {
 			connection = getConnection();
-			
+			//만약 max(g_no)+1가 null이면 1,null이 아니면  max(g_no)+1 값을 출력
 			String sql = "select ifnull(max(g_no)+1,1) from board";
 			pstmt = connection.prepareStatement(sql);
 			
@@ -141,72 +141,7 @@ public class BoardDao {
 
 		return result;
 	}
-	//List를 보여주기 위한 getList
-	public List<BoardVo> getList(int page) {
-		List<BoardVo> result = new ArrayList<BoardVo>();
-		
-		Connection connection = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		
-		try {
-			connection = getConnection();
-			
-			String sql = 
-				"select a.user_no, a.title ,b.name, a.hit ,date_format(reg_date, '%Y-%m-%d %h:%i:%s'),depth,a.no,a.g_no,a.o_no"
-				+ " from board a, user b "
-				+ "where a.user_no =b.no"
-				+ " order by a.g_no DESC, a.o_no ASC Limit ?,10" ;
-			pstmt = connection.prepareStatement(sql);
-			pstmt.setLong(1,page);
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()){
-				Long user_no = rs.getLong(1);
-				String title =rs.getString(2);
-				String user_name =rs.getString(3);
-				int hit =rs.getInt(4);
-				String reg_date=rs.getString(5);
-				int depth=rs.getInt(6);
-				Long no = rs.getLong(7);
-				int g_no = rs.getInt(8);
-				int o_no =rs.getInt(9);
-				
-				BoardVo vo= new BoardVo();
-				vo.setUser_no(user_no);
-				vo.setTitle(title);
-				vo.setUser_name(user_name);
-				vo.setHit(hit);
-				vo.setReg_date(reg_date);
-				vo.setDepth(depth);
-				vo.setNo(no);
-				vo.setG_no(g_no);
-				vo.setO_no(o_no);
-				
-				result.add(vo);
-				
-			}
-		} catch (SQLException e) {
-			System.out.println("select_error:" + e);
-		} finally {
-			try {
-				if(rs != null) {
-					rs.close();
-				}
-				if(pstmt != null) {
-					pstmt.close();
-				}
-				if(connection != null) {
-					connection.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return result;
-	}
-	
+
 	//게시글 제목을 눌렀을 때 내용을 보여주기 위한 view
 	public BoardVo view(long no) {
 		BoardVo result = new BoardVo();
@@ -351,10 +286,81 @@ public class BoardDao {
 			}
 		}		
 	}
+	//검색을 하여 검색하는 해당하는 검색어에 있는 제목과 내용이 들어있는 리스트 들을 검색, 처음 리스트 화면을 보여주기위한 getlist
+	public List<BoardVo> getList(int page, String keyword) {
+		List<BoardVo> result = new ArrayList<BoardVo>();
+		
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+		ResultSet rs = null;
+		
+		try {
+			connection = getConnection();
+			
+			String sql = "select a.user_no, a.title ,b.name, a.hit ,date_format(a.reg_date, '%Y-%m-%d %h:%i:%s'),a.depth ,a.no ,a.g_no ,a.o_no" + 
+					" from board a, user b " + 
+					" where a.user_no =b.no" + 
+					" and (title like ?" + 
+					" or contents like ?)" + 
+					" order by a.g_no DESC, a.o_no ASC Limit ?,10  ";
+					
+					
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1,"%"+keyword+"%");
+			pstmt.setString(2,"%"+keyword+"%");
+			pstmt.setLong(3, page);
+			rs = pstmt.executeQuery();
+			
+			while(rs.next()){
+				Long user_no = rs.getLong(1);
+				String title =rs.getString(2);
+				String user_name =rs.getString(3);
+				int hit =rs.getInt(4);
+				String reg_date=rs.getString(5);
+				int depth=rs.getInt(6);
+				Long no =rs.getLong(7);
+				int g_no =rs.getInt(8);
+				int o_no =rs.getInt(9);
+
+				
+				BoardVo vo= new BoardVo();
+				vo.setUser_no(user_no);
+				vo.setTitle(title);
+				vo.setUser_name(user_name);
+				vo.setHit(hit);
+				vo.setReg_date(reg_date);
+				vo.setDepth(depth);
+				vo.setNo(no);
+				vo.setG_no(g_no);
+				vo.setO_no(o_no);
+				
+
+				
+				result.add(vo);
+				
+			}
+		} catch (SQLException e) {
+			System.out.println("search_error:" + e);
+		} finally {
+			try {
+				if(rs != null) {
+					rs.close();
+				}
+				if(pstmt != null) {
+					pstmt.close();
+				}
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return result;
+	}
 	
-	
-	
-	
+
 	
 	private Connection getConnection() throws SQLException {
 		Connection connection = null;
