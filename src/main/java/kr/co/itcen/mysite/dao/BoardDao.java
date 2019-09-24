@@ -15,7 +15,7 @@ import kr.co.itcen.mysite.vo.BoardVo;
 
 
 public class BoardDao {
-	
+	//게시판에 글 쓰기를 위한 insert
 	public Boolean insert(BoardVo vo) {
 		Boolean result = false;
 		
@@ -77,8 +77,8 @@ public class BoardDao {
 		
 		return result;		
 	}
-	
-	public Boolean newinsert(BoardVo boardVo) {
+	// 답글 쓰기를 위한 newinsert
+	public Boolean newinsert(BoardVo vo) {
 		Boolean result = false;
 		Connection connection = null;
 		Statement stmt = null;
@@ -86,13 +86,11 @@ public class BoardDao {
 		PreparedStatement pstmt = null;
 
 		
-		BoardVo parentVo = this.get(boardVo.getNo());
+		BoardVo parentVo = this.view(vo.getNo());
 		
-		boardVo.setG_no(parentVo.getG_no());
-		boardVo.setO_no(parentVo.getO_no() + 1);
-		boardVo.setDepth(parentVo.getDepth() + 1);
-		
-		
+		vo.setG_no(parentVo.getG_no());
+		vo.setO_no(parentVo.getO_no() + 1);
+		vo.setDepth(parentVo.getDepth() + 1);
 		
 		try {
 			connection = getConnection();
@@ -102,8 +100,8 @@ public class BoardDao {
 					"where g_no =? and o_no >= ?";
 			pstmt = connection.prepareStatement(sql);
 			
-			pstmt.setLong(1, boardVo.getG_no());
-			pstmt.setLong(2, boardVo.getO_no());
+			pstmt.setLong(1, vo.getG_no());
+			pstmt.setLong(2, vo.getO_no());
 		
 			pstmt.executeUpdate();
 			
@@ -111,12 +109,12 @@ public class BoardDao {
 			String sql2 = "insert into board(no,title,contents,hit,reg_date,g_no,o_no,depth,user_no) value(null,?,?,0,now(),?,?,?,?)";
 			pstmt = connection.prepareStatement(sql2);
 			
-			pstmt.setString(1, boardVo.getTitle());
-			pstmt.setString(2, boardVo.getContents());
-			pstmt.setInt(3, boardVo.getG_no());
-			pstmt.setInt(4, boardVo.getO_no());
-			pstmt.setInt(5, boardVo.getDepth());
-			pstmt.setLong(6, boardVo.getUser_no());
+			pstmt.setString(1, vo.getTitle());
+			pstmt.setString(2, vo.getContents());
+			pstmt.setInt(3, vo.getG_no());
+			pstmt.setInt(4, vo.getO_no());
+			pstmt.setInt(5, vo.getDepth());
+			pstmt.setLong(6, vo.getUser_no());
 			
 			int count = pstmt.executeUpdate();
 			result = (count == 1);
@@ -143,6 +141,7 @@ public class BoardDao {
 
 		return result;
 	}
+	//List를 보여주기 위한 getList
 	public List<BoardVo> getList(int page) {
 		List<BoardVo> result = new ArrayList<BoardVo>();
 		
@@ -157,7 +156,7 @@ public class BoardDao {
 				"select a.user_no, a.title ,b.name, a.hit ,date_format(reg_date, '%Y-%m-%d %h:%i:%s'),depth,a.no,a.g_no,a.o_no"
 				+ " from board a, user b "
 				+ "where a.user_no =b.no"
-				+ " order by a.g_no DESC, a.o_no ASC Limit ?,5" ;
+				+ " order by a.g_no DESC, a.o_no ASC Limit ?,10" ;
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setLong(1,page);
 			rs = pstmt.executeQuery();
@@ -208,68 +207,7 @@ public class BoardDao {
 		return result;
 	}
 	
-	public BoardVo get(Long no) {
-		BoardVo result = new BoardVo();
-		
-		Connection connection = null;
-		PreparedStatement pstmt = null;
-		ResultSet rs = null;
-		
-		try {
-			connection = getConnection();
-			
-			String sql = 
-				"select a.user_no, a.title ,b.name, a.hit ,date_format(reg_date, '%Y-%m-%d %h:%i:%s'),a.depth ,a.g_no , a.o_no"
-				+ " from board a, user b "
-				+ "where a.user_no =b.no"
-				+ " order by a.no desc" ;
-			pstmt = connection.prepareStatement(sql);
-			
-			rs = pstmt.executeQuery();
-			
-			while(rs.next()){
-				Long user_no = rs.getLong(1);
-				String title =rs.getString(2);
-				String user_name =rs.getString(3);
-				int hit =rs.getInt(4);
-				String reg_date=rs.getString(5);
-				int depth=rs.getInt(6);
-				int g_no =rs.getInt(7);
-				int o_no =rs.getInt(8);
-				
-				BoardVo vo= new BoardVo();
-				vo.setUser_no(user_no);
-				vo.setTitle(title);
-				vo.setUser_name(user_name);
-				vo.setHit(hit);
-				vo.setReg_date(reg_date);
-				vo.setDepth(depth);
-				vo.setG_no(g_no);
-				vo.setO_no(o_no);
-				
-				result = vo;
-			}
-		} catch (SQLException e) {
-			System.out.println("get_error:" + e);
-		} finally {
-			try {
-				if(rs != null) {
-					rs.close();
-				}
-				if(pstmt != null) {
-					pstmt.close();
-				}
-				if(connection != null) {
-					connection.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		
-		return result;
-	}
-	
+	//게시글 제목을 눌렀을 때 내용을 보여주기 위한 view
 	public BoardVo view(long no) {
 		BoardVo result = new BoardVo();
 		
@@ -283,20 +221,14 @@ public class BoardDao {
 			String sql = " update board set hit=hit+1 where no=?; ";
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setLong(1,no);
-			rs=pstmt.executeQuery();
 			
-			int total_hit=0;
+			pstmt.executeUpdate();
 			
-			while(rs.next()) {
-				total_hit = rs.getInt(1);
-			}
-
-			
+	
 			String sql1 = 
-				"select no, title, contents, user_no, reg_date,?  from board where no =?" ;
+				"select no, title, contents, user_no, reg_date, g_no, o_no, depth  from board where no =?" ;
 			pstmt = connection.prepareStatement(sql1);
-			pstmt.setInt(1, total_hit);
-			pstmt.setLong(2,no);
+			pstmt.setLong(1,no);
 			rs = pstmt.executeQuery();
 			
 			while(rs.next()){
@@ -305,7 +237,9 @@ public class BoardDao {
 				String contents =rs.getString(3);
 				Long user_no = rs.getLong(4);
 				String reg_date = rs.getString(5);
-				int hit = rs.getInt(6);
+				int g_no = rs.getInt(6);
+				int o_no = rs.getInt(7);
+				int depth = rs.getInt(8);
 				
 				BoardVo vo= new BoardVo();
 				vo.setNo(no1);
@@ -313,7 +247,9 @@ public class BoardDao {
 				vo.setContents(contents);
 				vo.setUser_no(user_no);
 				vo.setReg_date(reg_date);
-				vo.setDepth(hit);
+				vo.setG_no(g_no);
+				vo.setO_no(o_no);
+				vo.setDepth(depth);
 				
 				result = vo;
 			}
@@ -337,7 +273,7 @@ public class BoardDao {
 		
 		return result;
 	}
-	
+	// 게시글을 수정하기 위한 modify
 	public boolean modify(BoardVo vo) {
 		boolean result = false;
 
@@ -380,6 +316,7 @@ public class BoardDao {
 
 		return result;		
 	}
+	//게시글을 삭제 하기위한 delete
 	public void delete(long no) {
 		
 		Connection connection = null;

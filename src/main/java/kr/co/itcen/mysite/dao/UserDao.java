@@ -26,6 +26,7 @@ public class UserDao {
 
 		return connection;
 	}
+	//join을 하기위한 insert
 	public Boolean insert(UserVo vo) {
 		Boolean result = false;
 
@@ -134,8 +135,7 @@ public class UserDao {
 		return result;		
 	}
 
-
-
+	//로그인 하기위한 get
 	public UserVo get(String email, String password) {
 		UserVo result = null;
 
@@ -186,6 +186,7 @@ public class UserDao {
 
 		return result;		
 	}
+	//password가 빈칸일 때 원래의 값을 update
 	public boolean update(Long no,String name,String gender) {
 		boolean result = false;
 
@@ -230,6 +231,7 @@ public class UserDao {
 
 		return result;		
 	}
+	//password를 수정하였을 때 password까지 update
 	public boolean update(Long no,String name,String password,String gender) {
 		boolean result = false;
 

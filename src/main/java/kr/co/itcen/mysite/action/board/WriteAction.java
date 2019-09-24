@@ -41,6 +41,7 @@ public class WriteAction implements Action {
 		
 		if (parentNo != null && parentNo.length() > 0) {
 			vo.setNo(Long.parseLong(parentNo));
+			
 			new BoardDao().newinsert(vo);
 		} else {
 			new BoardDao().insert(vo);
