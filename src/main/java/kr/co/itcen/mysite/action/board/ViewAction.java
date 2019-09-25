@@ -15,12 +15,10 @@ public class ViewAction implements Action {
 
 	@Override
 	public void execute(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+			
+		BoardVo vo = new BoardDao().view(Long.parseLong(request.getParameter("no")));
 		
-		
-		String no =request.getParameter("no");
-		BoardVo vo = new BoardDao().view(Long.parseLong(no));
-		
-		
+		new BoardDao().hit(vo.getNo());
 		request.setAttribute("vo", vo);
 		
 		WebUtils.forward(request, response,"/WEB-INF/views/board/view.jsp");

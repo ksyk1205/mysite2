@@ -40,13 +40,14 @@ public class BoardDao {
 				group_no = gr_no;
 			}
 
-			String sql1 = "insert into board values(null, ?, ?, 0, now(), ?, ?, 0, ?)";
+			String sql1 = "insert into board values(null, ?, ?, 0, now(), ?, ?, 0, ? ,?)";
 			pstmt = connection.prepareStatement(sql1);
 			pstmt.setString(1,vo.getTitle());
 			pstmt.setString(2,vo.getContents());
 			pstmt.setInt(3,group_no);
 			pstmt.setInt(4, vo.getO_no());
 			pstmt.setLong(5, vo.getUser_no());
+			pstmt.setInt(6, vo.getUse_yn());
 			int count = pstmt.executeUpdate();
 			result = (count == 1);
 
@@ -94,7 +95,7 @@ public class BoardDao {
 
 		try {
 			connection = getConnection();
-
+			//답글을 달았을 때 부모의 g_no값과 같게 해주고 o_no+1 해준다.
 			String sql = "update board " + 
 					"set o_no = o_no + 1 " + 
 					"where g_no =? and o_no >= ?";
@@ -153,13 +154,6 @@ public class BoardDao {
 		try {
 			connection = getConnection();
 
-			String sql = " update board set hit=hit+1 where no=?; ";
-			pstmt = connection.prepareStatement(sql);
-			pstmt.setLong(1,no);
-
-			pstmt.executeUpdate();
-
-
 			String sql1 = 
 					"select no, title, contents, user_no, reg_date, g_no, o_no, depth  from board where no =?" ;
 			pstmt = connection.prepareStatement(sql1);
@@ -188,6 +182,8 @@ public class BoardDao {
 
 				result = vo;
 			}
+			
+
 		} catch (SQLException e) {
 			System.out.println("view_error:" + e);
 		} finally {
@@ -208,6 +204,46 @@ public class BoardDao {
 
 		return result;
 	}
+	//view화면에 들어갈 때 hit가 증가하기위해서
+	public void hit(Long no) {
+
+		Connection connection = null;
+		PreparedStatement pstmt = null;
+
+
+		try {
+			connection = getConnection();
+
+			String sql = " update board set hit=hit+1 where no=?; ";
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setLong(1,no);
+
+			pstmt.executeUpdate();
+
+
+
+		} catch (SQLException e) {
+			System.out.println("hit_error:" + e);
+		} finally {
+			try {
+				if(pstmt != null) {
+					pstmt.close();
+				}
+
+				if(pstmt != null) {
+					pstmt.close();
+				}
+
+				if(connection != null) {
+					connection.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+
+	}
+	
 	// 게시글을 수정하기 위한 modify
 	public boolean modify(BoardVo vo) {
 		boolean result = false;
@@ -251,7 +287,8 @@ public class BoardDao {
 
 		return result;		
 	}
-	//게시글을 삭제 하기위한 delete
+	//게시글을 삭제 하여 use_yn 값을 받아오기 위한 delete
+	//use_yn이 1이면 글 삭제 
 	public void delete(long no) {
 
 		Connection connection = null;
@@ -261,9 +298,8 @@ public class BoardDao {
 			connection = getConnection();
 
 			String sql =
-					" delete" +
-							"   from board" +
-							"  where no = ?";
+					"update board "
+					+ "set use_yn=1 where no =?";
 
 			pstmt = connection.prepareStatement(sql);
 			pstmt.setLong(1, no);
@@ -286,7 +322,8 @@ public class BoardDao {
 			}
 		}		
 	}
-	//검색을 하여 검색하는 해당하는 검색어에 있는 제목과 내용이 들어있는 리스트 들을 검색, 처음 리스트 화면을 보여주기위한 getlist
+	//검색을 하여 검색하는 해당하는 검색어에 있는 제목과 내용이 들어있는 리스트 들을 검색
+	//처음 리스트 화면을 보여주기위한 getlist
 	public List<BoardVo> getList(int page, String keyword) {
 		List<BoardVo> result = new ArrayList<BoardVo>();
 
@@ -297,13 +334,14 @@ public class BoardDao {
 
 		try {
 			connection = getConnection();
-
-			String sql = "select a.user_no, a.title ,b.name, a.hit ,date_format(a.reg_date, '%Y-%m-%d %h:%i:%s'),a.depth ,a.no ,a.g_no ,a.o_no" + 
+			
+			String sql = "select a.user_no, a.title ,b.name, a.hit ,date_format(a.reg_date, '%Y-%m-%d %h:%i:%s'),a.depth ,a.no ,a.g_no ,a.o_no, a.use_yn" + 
 					" from board a, user b " + 
 					" where a.user_no =b.no" + 
 					" and (title like ?" + 
-					" or contents like ?)" + 
-					" order by a.g_no DESC, a.o_no ASC Limit ?,5  ";
+					" or contents like ?)"+
+					" and user_yn" + 
+					" order by a.g_no DESC, a.o_no ASC Limit ?,5 ";
 
 
 			pstmt = connection.prepareStatement(sql);
@@ -322,7 +360,9 @@ public class BoardDao {
 				int depth=rs.getInt(6);
 				Long no =rs.getLong(7);
 				int g_no =rs.getInt(8);
-				int o_no =rs.getInt(9);
+				int o_no =rs.getInt(9);	
+				int use_yn = rs.getInt(10);
+
 
 
 				BoardVo vo= new BoardVo();
@@ -335,6 +375,7 @@ public class BoardDao {
 				vo.setNo(no);
 				vo.setG_no(g_no);
 				vo.setO_no(o_no);
+				vo.setUse_yn(use_yn);
 
 
 
@@ -362,16 +403,24 @@ public class BoardDao {
 		return result;
 	}
 	//글의 총 개수를 가져오기 위한 count
-	public int Count() {
+	public int Count(String keyword) {
 		Connection connection = null;
 		PreparedStatement pstmt = null;
 		ResultSet rs = null;
 		int result = 0;
-
+		
 		try {
 			connection = getConnection();
-			String sql = "select count(*) from board";
-			pstmt = connection.prepareStatement(sql);
+			if(keyword != null) {
+				String sql = "select count(*) from board where (title Like ? or contents Like ?) ";
+				pstmt = connection.prepareStatement(sql);
+				pstmt.setString(1, "%"+keyword+"%");
+				pstmt.setString(2, "%"+keyword+"%");
+			}else {
+				String sql = "select count(*) from board";
+				pstmt = connection.prepareStatement(sql);
+			}	
+			
 			rs=pstmt.executeQuery();
 			if(rs.next()) {
 				result=rs.getInt(1);

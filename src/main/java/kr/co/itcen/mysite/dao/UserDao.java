@@ -7,11 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import kr.co.itcen.mysite.vo.GuestbookVo;
 import kr.co.itcen.mysite.vo.UserVo;
 
 public class UserDao {
-	private Connection getConnection() throws SQLException {
+	
+	private Connection getConnection() throws SQLException {  
 		Connection connection = null;
 
 		try {
@@ -82,6 +82,7 @@ public class UserDao {
 
 		return result;		
 	}
+	//회원정보 수정을 위한 get
 	public UserVo get(Long no) {
 		UserVo result = null;
 
