@@ -340,7 +340,6 @@ public class BoardDao {
 					" where a.user_no =b.no" + 
 					" and (title like ?" + 
 					" or contents like ?)"+
-					" and user_yn" + 
 					" order by a.g_no DESC, a.o_no ASC Limit ?,5 ";
 
 

@@ -89,7 +89,7 @@
 						</c:forEach>
 						<c:if test="${total_count>(pagenumber+5)*5}">
 							<li><a
-								href="${pageContext.servletContext.contextPath }/board?page=${pagenumber+6}}&keyword=${keyword}">▶</a></li>
+								href="${pageContext.servletContext.contextPath }/board?page=${pagenumber+6}&keyword=${keyword}">▶</a></li>
 						</c:if>
 					</ul>
 				</div>
